@@ -11,30 +11,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 // Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/favourites", require("./routes/favourites"));
 
 // Health check
-app.get("/health", (req, res) => {
-  res.status(200).json({ message: "Server is healthy!" });
-});
-
 app.get("/", (req, res) => {
   res.send("Server is running!");
 });
 
-//health check route
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "Server is healthy!" });
 });
 
-// Only connect to DB & start server if not in test mode
+// ✅ Start server only if not in test mode
 if (process.env.NODE_ENV !== "test") {
-  require("./config/db"); // Load database connection
+  const connectDB = require("./config/db");
+  connectDB();
 
-  const PORT = process.env.PORT;
+  const PORT = process.env.PORT || 5000; // Fallback for local dev
   app.listen(PORT, () => {
     console.log(`Server is running on: http://localhost:${PORT}`);
   });
